@@ -10,14 +10,96 @@ st.agregar = (function () {
                 }).join('');
             });
         },
-        agregarTurno: function(){
-            $("#formAgregarTurno").submit(function (e) {
+        formConfigurarCurso: function(){
+            $('#btn_guardar_conf').on('click', function() {
+                $("#btn_guardar_conf").hide();
+                $("#btn_guardar_load").show();
+                let tableData = [];
+            
+                // Itera sobre cada fila en el cuerpo de la tabla
+                $('tbody tr').each(function() {
+                    let rowData = {
+                        name: $(this).find('td:first').text(),  // Nombre del curso
+                        id_curso: $(this).find('input[name^="id_curso"]').val(), // Fecha de inicio
+                        timeopen: $(this).find('input[name^="timeopen"]').val(), // Fecha de inicio
+                        timeclose: $(this).find('input[name^="timeclose"]').val(), // Fecha de fin
+                       // timelimit: $(this).find('td:nth-child(4)').text(), // Límite de tiempo
+                       // visible: $(this).find('input[type="checkbox"]').is(':checked') ? 1 : 0 // Si está visible
+                    };
+            
+                    tableData.push(rowData);
+                });
+                let id_curso = $("#id_curso").val();
+                // Enviar datos a PHP mediante AJAX
+                $.ajax({
+                    url: base_url + "index.php/Agregar/formConfigurarCurso",
+                    type: 'POST',
+                    data: { tableData: tableData, id_curso:id_curso },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (!response.error) {
+                            Swal.fire("Éxito", "Datos guardados correctamente.", "success");
+                            //window.location.reload();
+                            window.location.href = base_url + "index.php/Principal/Matricular/";
+                        } else {
+                            Swal.fire("Error", "No se pudo guardar la configuración.", "error");
+                        }
+                        $("#btn_guardar_conf").show();
+                        $("#btn_guardar_load").hide();
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire("Error", "Ocurrió un error en la solicitud: " + error, "error");
+                    }
+                });
+             
+             
+            });
+            
+        },
+        copiar_fecha: function(){
+            $('#btn_fecha').on('click', function(e) {
                 e.preventDefault(); 
-                var formData = $("#formAgregarTurno").serialize();
-              
+                // Obtiene los valores de fecha de inicio y fin
+                let fec_inicio = $('#fec_inicio').val();
+                let fec_fin = $('#fec_fin').val();
+            
+                console.log("Fecha inicio:", fec_inicio, "Fecha fin:", fec_fin);
+            
+                // Itera sobre cada fila en el cuerpo de la tabla y asigna los valores
+                $('tbody tr').each(function(index) {
+                    // Encuentra los inputs que comienzan con "timeopen" y "timeclose" según el índice
+                    $(this).find(`input[name="timeopen${index}"]`).val(fec_inicio);
+                    $(this).find(`input[name="timeclose${index}"]`).val(fec_fin);
+                   
+                });
+            
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-right',
+                    showConfirmButton: false,
+                    timer: 2500
+                  })
+                  
+                  Toast.fire({
+                      type: 'success',
+                      title: 'Copia de fechas exitosa',
+                      icon: 'success'
+                  });
+                
+ 
+            });
+            
+        },
+     
+        agregarTurno: function(){
+            $("#formAgregarUsuarioTsi").submit(function (e) {
+                e.preventDefault(); 
+                var formData = $("#formAgregarUsuarioTsi").serialize();
+                $("#btn_save").hide();
+                $("#btn_load").show();
                 $.ajax({
                     type: "POST",
-                    url: base_url + "index.php/Agregar/guardaTurno",
+                    url: base_url + "index.php/Agregar/guardaUsuarioSti",
                     data:formData,
                     dataType: "json",
                     success: function (response) {
@@ -25,18 +107,19 @@ st.agregar = (function () {
                         if(response.respuesta.error){
                             Swal.fire("error", "Solicite apoyo al area de sistemas");
                         }
-                        Swal.fire("success", "Se guardo con exito");
-                        $("#formAgregarTurno")[0].reset();
-                        $('#asunto, #nombre_turno, #cpp, #indicacion, #firma_turno').val(null).trigger('change');
-                        var pdfUrl = base_url + "index.php/Inicio/pdfTurno?id_turno=" + response.respuesta.id_turno;
-                        var opcionesVentana = 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=800, height=800';
-                        window.open(pdfUrl, '_blank', opcionesVentana);
+                        Swal.fire("success", "Se guardo con exito", 'success');
+                        $("#formAgregarUsuarioTsi")[0].reset();
+                        $("#btn_save").show();
+                        $("#btn_load").hide()
+              
                         window.location.href = base_url + "index.php/Inicio";
                     },
                     error: function (response,jqXHR, textStatus, errorThrown) {
                          var res= JSON.parse (response.responseText);
                         //  console.log(res.message);
-                         Swal.fire("Error", '<p> '+ res.message + '</p>');  
+                         Swal.fire("Error", '<p> '+ res.message + '</p>', 'error');  
+                         $("#btn_save").show();
+                         $("#btn_load").hide();
                     }
                 });
             });

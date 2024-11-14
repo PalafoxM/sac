@@ -4,15 +4,13 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="footer-links d-none d-md-block">
-                                    <a href="javascript: void(0);"><img src="<?= base_url("/assets/images/Logo DGPyD.png")?>" height="35px"> </a>
-                                    <a href="javascript: void(0);"><img src="<?= base_url("/assets/images/DTIC-8.png")?>" height="35px"> </a>
+                                    <a href="javascript: void(0);"><img src="<?= base_url("/assets/images/st5.png")?>" height="35px"> </a>
                                 </div>
                             </div>
                             <div class="col-md-10">
                                 <div class="text-md-end footer-links d-none d-md-block">
-                                    <a href="javascript: void(0);">DIRECCIÓN GENERAL DE PLANEACIÓN Y DESARROLLO</a>
-                                    <a href="javascript: void(0);">DEPARTAMENTO DE SISTEMAS DE INFORMACIÓN</a>
-                                    <a href="javascript: void(0);">2023</a>
+                                    <a href="javascript: void(0);">SECRETARIA DE FINANZAS ADMINISTRACION Y ADMINISTRACION</a>
+                                    <a href="javascript: void(0);">2024</a>
                                 </div>
                             </div>
                         </div>

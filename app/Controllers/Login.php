@@ -53,19 +53,22 @@ class Login extends BaseController {
         
         $usuario = $this->request->getPost('usuario');
         $contrasenia = $this->request->getPost('contrasenia');
-
+       
         $data = array();
-        $dataDB = array('tabla' => 'seg_usuarios', 'where' => 'usuario ="'.$usuario.'" and contrasenia like "'.md5($contrasenia).'" and visible = 1');  
+        $dataDB = array('tabla' => 'usuario', 'where' =>[ "usuario" => $usuario, "contrasenia"  => md5($contrasenia), "visible" => 1]);  
+        //$dataDB = array('tabla' => 'usuario', 'where' => 'usuario ="'.$usuario.'" and contrasenia like "'.md5($contrasenia).'" and visible = 1');  
         
         if($usuario && $contrasenia){
             $response = $catalogos->getTabla($dataDB);
-            //die(print_r($response));
+           // die(print_r($response));
             if(sizeof($response->data) >= 1){
                 $session->set('logueado', 1);
                 $session->set('id_usuario',$response->data[0]->id_usuario);
                 $session->set('usuario',$response->data[0]->usuario);
                 $session->set('nombre_completo',$response->data[0]->nombre." ".$response->data[0]->primer_apellido." ".$response->data[0]->segundo_apellido);
                 $session->set('id_perfil',$response->data[0]->id_perfil);
+                $session->set('id_padre',$response->data[0]->id_padre);
+                $session->set('id_dependencia',$response->data[0]->id_dependencia);
                 die("correcto");
             }else{
                 die("error");

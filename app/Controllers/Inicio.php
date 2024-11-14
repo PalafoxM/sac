@@ -36,12 +36,23 @@ class Inicio extends BaseController {
 
     public function index()
     {        
-        $session = \Config\Services::session();   
+        $session = \Config\Services::session();
+        $principal = new Mglobal;   
+
+        if($session->get('id_perfil') >= 5){
+            header('Location:'.base_url().'index.php/Principal/Matricular');            
+            die();
+        }
         $data = array();
-        $data['scripts'] = array('principal','inicio');
-        $data['edita'] = 0;
-        $data['nombre_completo'] = $session->nombre_completo; 
-        $data['contentView'] = 'secciones/vInicio';                
+        
+        $cat_nivel                = $principal->getTabla(['tabla' => 'cat_nivel', 'where' => ['visible' => 1]]); 
+        $cat_perfil               = $principal->getTabla(['tabla' => 'cat_perfil', 'where' => ['visible' => 1]]); 
+        $data['cat_nivel']        = $cat_nivel->data;
+        $data['cat_perfil']       = $cat_perfil->data;
+        $data['scripts']          = array('principal','inicio');
+        $data['edita']            = 0;
+        $data['nombre_completo']  = $session->nombre_completo; 
+        $data['contentView']      = 'secciones/vInicio';                
         $this->_renderView($data);
         
     }
@@ -50,11 +61,78 @@ class Inicio extends BaseController {
         $session = \Config\Services::session();
         $principal = new Mglobal;
        
-        $dataDB = array('tabla' => 'turno', 'where' => 'visible = 1 ORDER BY fecha_registro DESC');  
+        //$dataDB = array('tabla' => 'vw_usuario', 'where' => 'visible = 1 ORDER BY fec_reg DESC');  
+        if($session->get('id_perfil') == 4){
+            $dataDB = array('tabla' => 'vw_usuario', 'where' => ['visible ' => 1, 'id_padre' => $session->get('id_perfil')]);
+        }
+        if($session->get('id_perfil') == 3){
+            $dataDB = array('tabla' => 'vw_usuario', 'where' => ['visible ' => 1, 'id_padre' => $session->get('id_perfil')]);
+        }
+        if($session->get('id_perfil') == 1){
+            $dataDB = array('tabla' => 'vw_usuario', 'where' => ['visible ' => 1]);
+        }
         $response = $principal->getTabla($dataDB); 
-      
          return $this->respond($response->data);
     }
+     // Función para recorrer el árbol y generar las rutas jerárquicas
+     public function getCurso()
+     {
+         $session = \Config\Services::session();
+         $principal = new Mglobal;
+         $dataDB = array('tabla' => 'categoria', 'where' => ['visible ' => 1]);
+         $response = $principal->getTabla($dataDB);
+     
+         // Obtener categorías y construir el árbol de categorías
+         $result = $principal->getCategories('getCategories');
+         $categoryMap = [];
+         $tree = [];
+         
+         if (!empty($result->data)) {
+             foreach ($result->data as $category) {
+                 $category->children = [];
+                 $categoryMap[$category->id] = $category;
+             }
+             foreach ($result->data as $category) {
+                 if ($category->parent == 0 || !isset($categoryMap[$category->parent])) {
+                     $tree[] = &$categoryMap[$category->id];
+                 } else {
+                     $categoryMap[$category->parent]->children[] = &$categoryMap[$category->id];
+                 }
+             }
+         }
+     
+         // Formatear el árbol para jstree
+         $formattedTree = $this->formatForJsTree($tree);
+     
+         return $this->respond($formattedTree);
+     }
+     
+     // Método privado para formatear el árbol en la estructura requerida por jstree
+     private function formatForJsTree($categories) {
+         $formatted = [];
+         foreach ($categories as $category) {
+             $formatted[] = [
+                 'id' => $category->id,
+                 'parent' => $category->parent == 0 ? "#" : $category->parent,
+                 'text' => $category->name,
+             ];
+     
+             if (!empty($category->children)) {
+                 $formatted = array_merge($formatted, $this->formatForJsTree($category->children));
+             }
+         }
+         return $formatted;
+     }
+     
+
+
+   
+
+// Uso de la funció
+
+
+
+
 
     public function pdfTurno(){
         // $session = \Config\Services::session();

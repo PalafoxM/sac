@@ -5,10 +5,12 @@ namespace App\Models;
 use CodeIgniter\Model;
 use App\Libraries\Bitacoracontrol;
 //use App\Libraries\Validacurp;
+use App\Libraries\Funciones;
 
 class Mglobal extends Model {
 
     public $errorConexion = false;
+    
 
     //protected $table = 'zeus_usuarios';
 
@@ -40,11 +42,150 @@ class Mglobal extends Model {
      */
     public function getTabla($data)
     {
+        $client = \Config\Services::curlrequest();
+        $session = \Config\Services::session();
         $response = new \stdClass();
         $response->error = true;
         $response->respuesta = 'Error|Parámetros de entrada';
 
-        /* Busqueda por query directa */
+        $jwt = new Funciones();
+        $userData = [
+            'id' => $session->id_perfil,
+            'nombre' => $session->nombre_completo
+        ];
+        $token = $jwt->generateToken($userData);
+        // Verificar el token
+        $verificacion = $jwt->verifyToken($token);
+        if (!$verificacion) {
+            echo "Token inválido";
+            
+        } 
+        try {
+            // Hacemos la petición POST a Node.js
+            $apiResponse = $client->post('http://localhost:3000/getTabla', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token  // Agregar el token al header
+                ],
+                'json' => ['data'=> $data]
+            ]);
+    
+            $result = json_decode($apiResponse->getBody());
+          
+            if (isset($result->error) && $result->error === false) {
+                $response->error = false;
+                $response->respuesta = $result->respuesta ?? 'Operación exitosa';
+                $response->data = $result->data ?? [];
+            } else {
+                $response->respuesta = $result->respuesta ?? 'Error desconocido en la respuesta';
+            }
+        
+            } catch (\Exception $e) {
+            log_message('error', 'Error al conectar con la API de Node.js: ' . $e->getMessage());
+            $response->respuesta = 'Error|Conexión fallida con Node.js';
+        }
+        return $response;
+    }
+   
+    public function createCurso($data, $tabla)
+    {
+        $client = \Config\Services::curlrequest();
+        $session = \Config\Services::session();
+        $response = new \stdClass();
+     
+
+        $jwt = new Funciones();
+        $userData = [
+            'id' => $session->id_perfil,
+            'nombre' => $session->nombre_completo
+        ];
+        $token = $jwt->generateToken($userData);
+        // Verificar el token
+        $verificacion = $jwt->verifyToken($token);
+        if (!$verificacion) {
+            echo "Token inválido";
+            
+        } 
+        try {
+            // Realizamos la solicitud POST a Node.js
+            $apiResponse = $client->post('http://localhost:3000/'.$tabla , [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token // Agregar el token al header si es necesario
+                ],
+                'json' => ['data' => $data]
+            ]);
+        
+            $result = json_decode($apiResponse->getBody());
+           
+            if ($result->error) {
+                $response->error = true;
+                $response->respuesta = "Error en la respuesta de la API: " . $result->respuesta;
+                $response->respuesta;
+            } else {
+                $response->error = false;
+                $response->respuesta = 'Consulta exitosa';
+                $response->data = $result->data;
+                //echo json_encode($response);
+                return $response;
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error al conectar con la API de Node.js: ' . $e->getMessage());
+        }
+        
+       return $response;
+    }
+    public function getCategories($tabla = 'getCategories')
+    {
+        $client = \Config\Services::curlrequest();
+        $session = \Config\Services::session();
+        $response = new \stdClass();
+     
+
+        $jwt = new Funciones();
+        $userData = [
+            'id' => $session->id_perfil,
+            'nombre' => $session->nombre_completo
+        ];
+        $token = $jwt->generateToken($userData);
+        // Verificar el token
+        $verificacion = $jwt->verifyToken($token);
+        if (!$verificacion) {
+            echo "Token inválido";
+            
+        } 
+        $data = ['categoryId' => 135];
+    
+        try {
+            // Realizamos la solicitud POST a Node.js
+            $apiResponse = $client->post('http://localhost:3000/'.$tabla , [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token // Agregar el token al header si es necesario
+                ],
+                'json' => ['data' => $data]
+            ]);
+        
+            $result = json_decode($apiResponse->getBody());
+          
+            if ($result->error) {
+                $response->error = true;
+                $response->respuesta = "Error en la respuesta de la API: " . $result->respuesta;
+            } else {
+                $response->error = false;
+                $response->respuesta = 'Creado correctamente';
+                $response->data = $result->data;
+                //echo json_encode($response);
+                return $response;
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error al conectar con la API de Node.js: ' . $e->getMessage());
+           
+        }
+        
+       return $response;
+    }
+   
+   /*  public function getTabla($data)
+    {
+       
         if (isset($data['query'])){
             try {
                 $query = $this->db->query($data['query'])->getResult();
@@ -101,7 +242,7 @@ class Mglobal extends Model {
         if (isset($data['groupBy']))                // ejemplo : ["title", "date"]
         $builder->groupBy($data['groupBy']);
         
-        if (isset($data['limit'])) {                //ejemplo :10 o ['start' => (int), 'length' => (int)] */
+        if (isset($data['limit'])) {                //ejemplo :10 o ['start' => (int), 'length' => (int)] 
             if (isset($data['limit']['length'])&&isset($data['limit']['start']))
                 $builder->limit($data['limit']['length'], $data['limit']['start']);
             else
@@ -121,7 +262,7 @@ class Mglobal extends Model {
         $response->error = false;
         $response->respuesta = 'Consulta exitosa';
         return $response;
-    }
+    } */
 
     /**
      *   saveTabla
@@ -140,6 +281,67 @@ class Mglobal extends Model {
      *   result->message
      */
     public function saveTabla($data,$config,$bitacora)
+    {
+        $response = new \stdClass();
+        $session = \Config\Services::session();
+        $response->error = true;
+        $response->respuesta = 'Error|Parámetros de entrada';
+        $error = false;
+
+        if (!isset($config['tabla']) || !isset($config['editar'])) 
+        return $response;
+        $config['editar'] = json_decode($config['editar']);
+        if ($config['editar'] && (!isset($config['idEditar']) || is_null($config['idEditar']))) 
+        return $response;
+
+        $Bitacoracontrol = new Bitacoracontrol();
+
+        $client = \Config\Services::curlrequest();
+        $jwt = new Funciones();
+        $userData = [
+            'id' => $session->id_perfil,
+            'nombre' => $session->nombre_completo
+        ];
+        $token = $jwt->generateToken($userData);
+        // Verificar el token
+        $verificacion = $jwt->verifyToken($token);
+        if (!$verificacion) {
+            echo "Token inválido";
+            
+        } 
+       
+    try {
+        // Hacemos la petición POST a Node.js
+        $apiResponse = $client->post('http://localhost:3000/saveTabla', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token  // Agregar el token al header
+            ],
+            'json' => [
+                'data'     => $data,
+                'config'   => $config,
+                'bitacora' => $bitacora
+            ]
+        ]);
+
+        // Decodificamos la respuesta de Node.js
+        $result = json_decode($apiResponse->getBody());
+      
+        if ($result->error === false) {
+            $response->error = false;
+            $response->respuesta = 'Registro guardado correctamente';
+            $response->idRegistro = $result->idRegistro;
+        } else {
+            $response->respuesta = 'Error|No se pudo guardar el registro';
+        }
+
+    } catch (\Exception $e) {
+        log_message('error', 'Error al conectar con la API de Node.js: ' . $e->getMessage());
+        $response->respuesta = 'Error|Conexión fallida con Node.js';
+    }
+
+    return $response;
+    }
+    /* public function saveTabla($data,$config,$bitacora)
     {
         $response = new \stdClass();
         $response->error = true;
@@ -216,7 +418,7 @@ class Mglobal extends Model {
             $response->query = $this->db->getLastQuery()->getQuery();
         }
         return $response;
-    }
+    } */
 
     /**
      *    insertBatch
@@ -520,17 +722,9 @@ class Mglobal extends Model {
      *   llave        (array) ["llave_1","llave_2"]
      *  ]
      */
-    public function localUpdateInsertTabla($dataInsert = array(), $dataConfig = array(), $dataBitacora = array(), $nombreElemento = false, &$db, &$response, &$bitacora = array() )
+    /* public function localUpdateInsertTabla($dataInsert = array(), $dataConfig = array(), $dataBitacora = array(), $nombreElemento = false, &$db, &$response, &$bitacora = array() )
     {
-        /** 
-        $dataConfig = [
-            "tabla"         => "cima_auxiliares.lab_solicitud_estudios",
-            "paramIdTabla"  => "id_lab_solicitud_estudios",
-            "paramDelete"   => ["visible"=>0],
-            "whereDelete"   => ["id_lab_solicitud"=>$response->idLaboratorio, "visible"=>1],
-            "llave"         => ["id_lab_solicitud","id_lab_estudio"],
-        ];
-        */
+     
         //step 1: delete all
         $elementos = $db->table($dataConfig['tabla'])->where($dataConfig['whereDelete'])->get()->getResult();
         
@@ -626,7 +820,7 @@ class Mglobal extends Model {
             return false;
         }
         return true;
-    }
+    } */
 
     /**
      * función que realiza el guardado de la bitacora de una transacción completa
@@ -655,4 +849,5 @@ class Mglobal extends Model {
 
         return $errorDB;
     }
+ 
 }

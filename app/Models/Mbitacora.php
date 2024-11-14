@@ -7,7 +7,7 @@ class Mbitacora extends Model {
     function __construct() {
         parent::__construct();
     }  
-    public function insertTabla($datos = array(), $tabla="bitacora_turnos"){
+    public function insertTabla($datos = array(), $tabla="bitacora"){
         $this->db->transStart(); 
         $builder = $this->db->table($tabla);                  
         $builder->insert($datos);

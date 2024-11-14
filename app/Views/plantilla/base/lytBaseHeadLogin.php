@@ -3,10 +3,10 @@
 
     <head>
         <meta charset="utf-8" />
-        <title><?php echo $title;?></title>
+        <title>STI</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="Junta de Gobierno del ISAPEG" name="description" />
-        <meta content="ISAPEG" name="author" />
+        <meta content="Sistema de Transferencia de Información" name="description" />
+        <meta content="SFIA" name="author" />
         <!-- App favicon -->
         <link rel="shortcut icon" href="<?php echo base_url();?>assets/images/favicon.ico">
 
