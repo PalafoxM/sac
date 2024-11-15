@@ -57,7 +57,10 @@ class Principal extends BaseController {
         } else {
             $tabla = ['tabla' => 'vw_participante_moodleid', 'where' => ['visible' => 1, 'id_curso' => $id_curso]];
         }
+       
         $participante = $globals->getTabla($tabla);
+
+       
         if(empty($participante->data)){
           echo '<center>ID DEL CURSO NO TIENE PARTICIPANTES</center>';
           die();
@@ -105,7 +108,7 @@ class Principal extends BaseController {
        
         $datos = ['usuarios' =>  $usuarios, 'courseId' => $data['id_curso'] ];
         $result = $globals->createCurso($datos, 'matricularEnMoodle');
-
+       
         if(!$result->error){
             $response->error = $result->error;
             $response->data = $result->data;
@@ -130,19 +133,24 @@ class Principal extends BaseController {
                     ];
 
                 $user = $globals->getTabla($tabla);
-                if(empty($user->data)){
+             
+               if(empty($user->data)){
+               
                     $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardarIdMoodle'];
-                    $dataConfig = ["tabla" => "participante_moodleid", "editar" => false,  "idEditar" => ['id_participante' => $e->id_participante] ];
+                    $dataConfig = ["tabla" => "participante_moodleid", "editar" => false ];
                     $dataInsert = [
                                'id_participante' => $e->id_participante, 
                                'userid'          => isset($e->userid) ? $e->userid : null, 
                                'existe'          => (int)$e->existe, 
-                               'id_curso'         => $data['id_curso']
+                               'id_curso'         => $data['id_curso'],
+                               'id_dependencia' =>  $session->get('id_dependencia')
                     ];
-                    $globals->saveTabla($dataInsert, $dataConfig, $dataBitacora); 
-                }
+                    $resultado = $globals->saveTabla($dataInsert, $dataConfig, $dataBitacora);
+                 
+                } 
                
               } 
+              
 
            }
         }
@@ -190,6 +198,7 @@ class Principal extends BaseController {
             $participantes = $globals->getTabla(['tabla' => 'participantes', 'where' => ['visible' => 1]]);
         }
 
+      
     
             // Add full name to each filtered $detenidos record
             foreach ($participantes->data as $d) {

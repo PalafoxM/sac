@@ -63,7 +63,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if(!empty($participantes->data)): ?>
+                                <?php if(!empty($participantes)): ?>
                                 <?php foreach ($participantes as $participante): ?>
                                 <tr>
                                     <td>
@@ -156,8 +156,7 @@ $(document).ready(function() {
                     $('#modalMatricular').modal('hide');
                     $("#btn_load").hide();
                     $("#btn_save").show();
-                    window.location.href = base_url +
-                        "index.php/Principal/cursoMatriculados/" + id_curso;
+                    window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
                 }
 
                 // Actualizar la tabla principal si es necesario
