@@ -28,7 +28,7 @@ class Database extends Config
         'DSN'          => '',
         'hostname'     => 'localhost',
         'username'     => 'root',
-        'password'     => '',
+        'password'     => 'PalafoxMarin1989',
         'database'     => 'transferencia',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
@@ -53,7 +53,7 @@ class Database extends Config
         'DSN'         => '',
         'hostname'     => 'localhost',
         'username'     => 'root',
-        'password'     => '',
+        'password'     => 'PalafoxMarin1989',
         'database'    => 'bitacora',
         'DBDriver'    => 'MySQLi',
         'DBPrefix'    => '',  // Needed to ensure we're working correctly with prefixes live. DO NOT REMOVE FOR CI DEVS

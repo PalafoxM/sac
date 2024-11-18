@@ -104,15 +104,16 @@ st.agregar = (function () {
                     dataType: "json",
                     success: function (response) {
                         console.log(response);
-                        if(response.respuesta.error){
-                            Swal.fire("error", "Solicite apoyo al area de sistemas");
-                        }
+                        if(response.error){
+                            Swal.fire("error", response.respuesta ,"error");
+                        }else{
                         Swal.fire("success", "Se guardo con exito", 'success');
                         $("#formAgregarUsuarioTsi")[0].reset();
                         $("#btn_save").show();
-                        $("#btn_load").hide()
-              
+                        $("#btn_load").hide();
                         window.location.href = base_url + "index.php/Inicio";
+                    }
+                       
                     },
                     error: function (response,jqXHR, textStatus, errorThrown) {
                          var res= JSON.parse (response.responseText);

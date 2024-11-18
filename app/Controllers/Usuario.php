@@ -114,7 +114,7 @@ class Usuario extends BaseController {
         $dataConfig = [
             "tabla"=>"curso",
             "editar"=>true,
-            "idEditar"=>['id_curso'=>$data['id_curso']]
+            "idEditar"=>['id_curso'=>(int)$data['id_curso']]
         ];
         $response = $this->globals->saveTabla(["visible"=>0],$dataConfig,["script"=>"Usuario.deleteCurso"]);
         return $this->respond($response);

@@ -337,6 +337,7 @@
 
 
     // Constantes generales
+    //const API_CURP = "http://172.31.187.142:5600/api-curp";
     const API_CURP = "http://localhost:5600/api-curp";
     const AUTH_TOKEN = "ORnsLEykJAMTEvacurICINGeRvelINclOg";
 

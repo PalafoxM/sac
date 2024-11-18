@@ -62,7 +62,8 @@ class Mglobal extends Model {
         } 
         try {
             // Hacemos la petición POST a Node.js
-            $apiResponse = $client->post('http://localhost:3000/getTabla', [
+            $baseUrl = env('NODE_API_BASE_URL');
+            $apiResponse = $client->post($baseUrl.'getTabla', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token  // Agregar el token al header
                 ],
@@ -107,7 +108,8 @@ class Mglobal extends Model {
         } 
         try {
             // Realizamos la solicitud POST a Node.js
-            $apiResponse = $client->post('http://localhost:3000/'.$tabla , [
+            $baseUrl = env('NODE_API_BASE_URL');
+            $apiResponse = $client->post($baseUrl.$tabla , [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token // Agregar el token al header si es necesario
                 ],
@@ -156,7 +158,8 @@ class Mglobal extends Model {
     
         try {
             // Realizamos la solicitud POST a Node.js
-            $apiResponse = $client->post('http://localhost:3000/'.$tabla , [
+            $baseUrl = env('NODE_API_BASE_URL');
+            $apiResponse = $client->post($baseUrl.$tabla , [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token // Agregar el token al header si es necesario
                 ],
@@ -299,8 +302,8 @@ class Mglobal extends Model {
         $client = \Config\Services::curlrequest();
         $jwt = new Funciones();
         $userData = [
-            'id' => $session->id_perfil,
-            'nombre' => $session->nombre_completo
+            'id'     => $session->get('id_usuario'),
+            'nombre' => $session->get('nombre_completo')
         ];
         $token = $jwt->generateToken($userData);
         // Verificar el token
@@ -312,7 +315,8 @@ class Mglobal extends Model {
        
     try {
         // Hacemos la petición POST a Node.js
-        $apiResponse = $client->post('http://localhost:3000/saveTabla', [
+        $baseUrl = env('NODE_API_BASE_URL');
+        $apiResponse = $client->post($baseUrl . 'saveTabla', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token  // Agregar el token al header
             ],

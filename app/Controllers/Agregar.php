@@ -263,11 +263,11 @@ class Agregar extends BaseController {
         }
         
         $dataInsert = [
-            'id_sexo'               => $data['id_sexo'],           
-            'id_nivel'              => $data['id_nivel'],           
-            'id_dependencia'        => $data['id_dependencia'],             
-            'id_perfil'             => $data['id_perfil'],           
-            'id_padre'             =>  $session->get('id_perfil'),           
+            'id_sexo'               => (int)$data['id_sexo'],           
+            'id_nivel'              => (int)$data['id_nivel'],           
+            'id_dependencia'        => (int)$data['id_dependencia'],             
+            'id_perfil'             => (int)$data['id_perfil'],           
+            'id_padre'              => (int)$session->get('id_perfil'),           
             'usuario'               => $data['usuario'],           
             'contrasenia'           => md5($data['contrasenia']),             
             'nombre'                => $data['nombre'],           
@@ -279,10 +279,10 @@ class Agregar extends BaseController {
             'denominacion_funcional'=> $data['denominacion_funcional'],             
             'area'                  => $data['area'],             
             'jefe_inmediato'        => $data['jefe_inmediato'],             
-            'fec_nac'               => $data['fec_nac'],             
+            'fec_nac'               => $data['fec_nac'],            
             'fec_registro'          => $hoy   
         ];     
-        $dataBitacora = ['id_user' =>  $session->id_usuario, 'script' => 'Agregar.php/guardaTurno'];
+        $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardaTurno'];
         
        
         $dataConfig = [

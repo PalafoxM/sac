@@ -556,8 +556,8 @@ class Principal extends BaseController {
                     'observaciones'      => $c['observaciones'],
                     //'id_sexo'            => ($c['sexo'] == 'HOMBRE') ? 1 : 2,
                     'id_municipio'       => 15,
-                    'id_dependencia'     => $session->get('id_dependencia'),
-                    'id_dep_padre'       => $session->get('id_padre'),
+                    'id_dependencia'     => (int)$session->get('id_dependencia'),
+                    'id_dep_padre'       => (int)$session->get('id_padre'),
                     'id_nivel'           => (int)$c['nivel'],
                     'fec_reg'            => date("Y-m-d H:i:s"),
                     'usu_reg'            => $session->get('id_usuario')
@@ -584,8 +584,8 @@ class Principal extends BaseController {
                     'edad'               => $c['edad'],
                     'id_sexo'            => ($c['sexo'] == 'H') ? 1 : 2,
                     'id_municipio'       => 15,
-                    'id_dependencia'     => $session->get('id_dependencia'),
-                    'id_dep_padre'       => $session->get('id_padre'),
+                    'id_dependencia'     => (int)$session->get('id_dependencia'),
+                    'id_dep_padre'       => (int)$session->get('id_padre'),
                     'id_nivel'           => (int)$c['nivel'],
                     'fec_reg'            => date("Y-m-d H:i:s"),
                     'usu_reg'            => $session->get('id_usuario')
