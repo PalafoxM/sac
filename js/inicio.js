@@ -312,7 +312,8 @@ ini.inicio = (function () {
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Si, Eliminar"
+                confirmButtonText: "Si, Eliminar",
+                cancelButtonText: "Cancelar"
               }).then((result) => {
                 if (result.isConfirmed) {
                   
@@ -361,7 +362,8 @@ ini.inicio = (function () {
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Si, Eliminar"
+                confirmButtonText: "Si, Eliminar",
+                cancelButtonText: "Cerrar"
               }).then((result) => {
                 if (result.isConfirmed) {
                   
