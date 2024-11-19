@@ -30,11 +30,13 @@ st.agregar = (function () {
                     tableData.push(rowData);
                 });
                 let id_curso = $("#id_curso").val();
+                let fec_inicio = $("#fec_inicio").val();
+                let fec_fin = $("#fec_fin").val();
                 // Enviar datos a PHP mediante AJAX
                 $.ajax({
                     url: base_url + "index.php/Agregar/formConfigurarCurso",
                     type: 'POST',
-                    data: { tableData: tableData, id_curso:id_curso },
+                    data: { tableData: tableData, id_curso:id_curso, fec_inicio, fec_fin },
                     dataType: 'json',
                     success: function(response) {
                         if (!response.error) {
