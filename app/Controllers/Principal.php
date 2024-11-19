@@ -251,7 +251,7 @@ class Principal extends BaseController {
         $catalogos = new Mglobal();
     
         // Fetch data based on session conditions
-        if ($session->get('id_dependencia') >= 5) {
+        if ($session->get('id_perfil') >= 5) {
             $detenidos = $catalogos->getTabla(['tabla' => 'detenidos', 'where' => ['visible' => 1, 'id_dependencia' => $session->get('id_dependencia')]]);
             $participantes = $catalogos->getTabla(['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_dependencia' => $session->get('id_dependencia')]]);
         } else {
