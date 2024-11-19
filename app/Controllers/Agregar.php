@@ -689,7 +689,7 @@ class Agregar extends BaseController {
         if(empty($cursoExiste->data) ){
            
             $insert = [
-                'id_curso'   => $formData['id_curso'],
+                'id_curso'   => (int)$formData['id_curso'],
                 'id_padre'   => $session->get('id_perfil'),
                 'fec_reg'    => date("Y-m-d H:i:s"),
                 'usu_reg'    => $session->get('id_usuario')
