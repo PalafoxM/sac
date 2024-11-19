@@ -47,8 +47,13 @@ class Inicio extends BaseController {
         
         $cat_nivel                = $principal->getTabla(['tabla' => 'cat_nivel', 'where' => ['visible' => 1]]); 
         $cat_perfil               = $principal->getTabla(['tabla' => 'cat_perfil', 'where' => ['visible' => 1]]); 
+        $dependenciaDB            = array('tabla' => 'cat_dependencia', 'where' => ['visible' => 1]);
+        $cat_dependencia          = $principal->getTabla($dependenciaDB);
+        $cat_municipio            = $principal->getTabla(['tabla' => 'cat_municipio', 'where' => ['visible' => 1]]);
         $data['cat_nivel']        = $cat_nivel->data;
         $data['cat_perfil']       = $cat_perfil->data;
+        $data['cat_dependencia']  = $cat_dependencia->data;
+        $data['cat_municipio']    = $cat_municipio->data;
         $data['scripts']          = array('principal','inicio');
         $data['edita']            = 0;
         $data['nombre_completo']  = $session->nombre_completo; 

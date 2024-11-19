@@ -442,8 +442,9 @@ function agregar(){
 
 // Constantes generales
 //const API_CURP = "http://localhost:5600/api-curp";
-const API_CURP = "http://172.31.187.142:5600/api-curp";
-const AUTH_TOKEN = "ORnsLEykJAMTEvacurICINGeRvelINclOg";
+
+const AUTH_TOKEN = "<?php echo env('TOKEN_API'); ?>"; 
+const API_CURP = "<?php echo env('NODE_API_CURP'); ?>";
 
 // Selectores de elementos DOM
 const inputCurp = document.getElementById('curp');

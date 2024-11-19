@@ -44,6 +44,8 @@ class Usuario extends BaseController {
         $data['perfiles'] = $this->globals->getTabla(["tabla"=>"seg_perfiles", "where"=>["visible"=>1]]); */ 
         $data['cat_nivel'] = $this->globals->getTabla(["tabla"=>"cat_nivel", "where"=>["visible"=>1]])->data; 
         $data['cat_perfil'] = $this->globals->getTabla(["tabla"=>"cat_perfil", "where"=>["visible"=>1]])->data; 
+        $data['cat_dependencia'] = $this->globals->getTabla(["tabla"=>"cat_dependencia", "where"=>["visible"=>1]])->data; 
+        $data['cat_municipio'] = $this->globals->getTabla(["tabla"=>"cat_municipio", "where"=>["visible"=>1]])->data; 
        // die( var_dump( $data['cat_nivel ']  ) );
         $data['scripts'] = array('principal','inicio');
         $data['edita'] = 0;

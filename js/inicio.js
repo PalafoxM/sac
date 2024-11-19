@@ -216,8 +216,12 @@ ini.inicio = (function () {
                         $('#curp').val(data.curp);
                         $('#area').val(data.area);
                         $('#jefe_inmediato').val(data.jefe_inmediato);
-                        $('#id_nivel').val(data.id_nivel);
-                        $('#id_perfil').val(data.id_perfil);
+                        $('#denominacion_funcional').val(data.denominacion_funcional);
+                        $('#id_sexo').val(data.id_sexo);
+                        $('#id_nivel').val(data.id_nivel).trigger('change');
+                        $('#id_dependencia').val(data.id_dependencia).trigger('change');
+                        $('#id_perfil').val(data.id_perfil).trigger('change');
+                        $('#fec_nac').val(data.fec_nac);
                         $('#usuario').val(data.usuario);
 
                     } else {
