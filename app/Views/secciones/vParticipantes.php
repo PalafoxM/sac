@@ -33,7 +33,7 @@
                                 <button type="button" class="btn btn-success mb-2 me-1"><i
                                         class="mdi mdi-cog"></i></button>
                                 <button type="button" data-bs-toggle="modal" data-bs-target="#standard-modal"
-                                    class="btn btn-light mb-2">Exportar</button>
+                                    class="btn btn-light mb-2">Importar</button>
                             </div>
                         </div><!-- end col-->
                     </div>

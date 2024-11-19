@@ -89,14 +89,14 @@ class Principal extends BaseController {
         if(!empty($data['participantes'])){
            foreach($data['participantes'] as $key){
             if ($session->get('id_dependencia') >= 5) {
-                $tabla = ['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_participante' => $key,  'id_dependencia' =>  $session->get('id_dependencia')]];
+                $tabla = ['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_participante' => (int)$key,  'id_dependencia' =>  $session->get('id_dependencia')]];
             } else {
                 $tabla = ['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_participante' => $key]];
             }
 
            $user = $globals->getTabla($tabla)->data[0];
             $usuarios[] = [
-                         'id_participante' =>  $key, 
+                         'id_participante' =>  (int)$key, 
                          'curp'            =>  $user->curp, 
                          'nombre'          =>  $user->nombre, 
                          'primer_apellido' =>  $user->primer_apellido, 
@@ -108,7 +108,7 @@ class Principal extends BaseController {
        
         $datos = ['usuarios' =>  $usuarios, 'courseId' => $data['id_curso'] ];
         $result = $globals->createCurso($datos, 'matricularEnMoodle');
-       
+        
         if(!$result->error){
             $response->error = $result->error;
             $response->data = $result->data;
@@ -292,7 +292,7 @@ class Principal extends BaseController {
     {  
         $session = \Config\Services::session();
         $catalogos        = new Mglobal;
-        if($session->get('id_dependencia') >= 5 ){
+        if($session->get('id_perfil') >= 5 ){
             $participantes    = $catalogos->getTabla(['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_dependencia' => $session->get('id_dependencia') ]]);
            }else{
              $participantes    = $catalogos->getTabla(['tabla' => 'participantes', 'where' => ['visible' => 1 ]]);
@@ -636,7 +636,7 @@ class Principal extends BaseController {
             'nombre'                => $data['nombre'],           
             'primer_apellido'       => $data['primer_apellido'],           
             'segundo_apellido'      => $data['segundo_apellido'],           
-            'fec_nac'               => date("Y-m-d H:i:s", strtotime($data['fec_nac'])),   
+            'fec_nac'               => date("Y-m-d", strtotime($data['fec_nac'])),   
             'rfc'                   => $data['rfc'],   
             'correo'                => $data['correo'],   
             'id_sexo'               => $data['id_sexo'],   

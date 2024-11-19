@@ -156,7 +156,7 @@ $(document).ready(function() {
                     $('#modalMatricular').modal('hide');
                     $("#btn_load").hide();
                     $("#btn_save").show();
-                    window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
+                    //window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
                 }
 
                 // Actualizar la tabla principal si es necesario
