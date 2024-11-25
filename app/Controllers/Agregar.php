@@ -643,8 +643,9 @@ class Agregar extends BaseController {
         $catalogos   = new Mglobal;
         // Obtener el evento_id encriptado desde GET y desencriptarlo
         $encryptedEventoId = $this->request->getGet('evento_id');
+        
         $id_curso = $this->decrypt($encryptedEventoId);
-
+      
         if ($id_curso === false) {
             // Manejar error de desencriptación
             echo "ID no válido o error de desencriptación.";
@@ -654,7 +655,7 @@ class Agregar extends BaseController {
         $categoria = "";
         $quizz = $catalogos->createCurso($data, 'traerQuiz');
         $details = $catalogos->createCurso($data, 'getCourseDetailsById');
-        //die( var_dump( $quizz ) );
+        //die( var_dump( $details ) );
         if(!empty($quizz->data)){
             $data['quizz'] = $quizz->data;
         }

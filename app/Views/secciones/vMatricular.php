@@ -1,6 +1,6 @@
 <?php $session = \Config\Services::session(); ?>
 <div class="container mt-5">
-    <h2 class="mb-4">MATRICULAR PARTICIPANTES  </h2>
+    <h2 class="mb-4">INSCRIBIR PARTICIPANTES  </h2>
 
     <table id="table" data-locale="es-MX" data-toolbar="#toolbar" data-toggle="table" data-search="true"
         data-search-highlight="true" data-pagination="true" data-page-list="[10, 25, 50, 100, all]" data-sortable="true"
