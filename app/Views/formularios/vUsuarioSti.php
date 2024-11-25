@@ -259,23 +259,19 @@ td {
                                     <select class="form-control select2" data-toggle="select2" id="id_perfil"
                                         name="id_perfil" data-placeholder="Seleccione" style="z-index:100;">
                                         <option value="0">Seleccione</option>
-                                        <?php foreach ($cat_perfil as $p): ?>
-                                        <?php 
-                                            // Verifica si el perfil actual en sesión es igual a 5
-                                            if ($session->get('id_perfil') >= 4) {
-                                                if ($p->id_perfil >= 5 && $p->id_perfil <= 6): ?>
-                                                                        <option value="<?php echo $p->id_perfil; ?>">
-                                                                            <?php echo $p->dsc_perfil; ?>
-                                                                        </option>
-                                                                        <?php endif;
-                                            } else {
-                                                ?>
-                                                                        <option value="<?php echo $p->id_perfil; ?>">
-                                                                            <?php echo $p->dsc_perfil; ?>
-                                                                        </option>
-                                                                        <?php }
-                                        ?>
-                                        <?php endforeach; ?>
+                                        <?php if ($session->get('id_perfil') == 1): ?>
+                                            <?php foreach ($cat_perfil as $p): ?>
+                                                <option value="<?php echo htmlspecialchars($p->id_perfil); ?>">
+                                                    <?php echo htmlspecialchars($p->dsc_perfil); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php elseif ($session->get('id_perfil') == 4): ?>
+                                            <option value="6">ENLACE RH NO SAP</option>
+                                        <?php elseif ($session->get('id_perfil') == 5): ?>
+                                            <option value="5">ENLACE RH SAP</option>
+                                        <?php endif; ?>
+
+
                                     </select>
 
                                 </div>

@@ -1,5 +1,6 @@
+<?php $session = \Config\Services::session(); ?>
 <div class="container mt-5">
-    <h2 class="mb-4">MATRICULAR PARTICIPANTES</h2>
+    <h2 class="mb-4">MATRICULAR PARTICIPANTES  </h2>
 
     <table id="table" data-locale="es-MX" data-toolbar="#toolbar" data-toggle="table" data-search="true"
         data-search-highlight="true" data-pagination="true" data-page-list="[10, 25, 50, 100, all]" data-sortable="true"
@@ -21,8 +22,11 @@
                 <td><?= htmlspecialchars($curso['startdate']) ?></td>
                 <td><?= htmlspecialchars($curso['enddate']) ?></td>
                 <td>
+                <?php if ($session->get('id_perfil') !== 3 && $session->get('id_perfil') !== 4): ?>
                     <button type="button" class="btn btn-secondary rounded-pill"
                         onclick="matricular(<?= $curso['id'] ?>)">Inscribir</button>
+                <?php endif; ?>
+  
                     <a href="<?= base_url('index.php/Principal/cursoMatriculados/'.$curso['id']) ?>" type="button"
                         class="btn btn-light  rounded-pill">Inscritos</a>
                 </td>
@@ -82,12 +86,12 @@
                     </div>
                     <div class="modal-footer" id="btn_save">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-primary" id="matricularButton">Matricular</button>
+                        <button type="submit" class="btn btn-primary" id="matricularButton">Guardar</button>
                     </div>
                     <div class="modal-footer" id="btn_load" style="display:none;">
                         <button class="btn btn-primary" type="button" disabled>
                             <span class="spinner-grow spinner-grow-sm me-1" role="status" aria-hidden="true"></span>
-                             Matriculando ...
+                             Guardando ...
                         </button>
                     </div>
                 </form>
@@ -156,7 +160,7 @@ $(document).ready(function() {
                     $('#modalMatricular').modal('hide');
                     $("#btn_load").hide();
                     $("#btn_save").show();
-                    window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
+                   window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
                 }
 
                 // Actualizar la tabla principal si es necesario

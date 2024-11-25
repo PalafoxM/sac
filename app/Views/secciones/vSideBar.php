@@ -76,7 +76,7 @@
                         <?php endif ?>
                         <li>
                             <a href="<?= base_url("/index.php/Principal/Matricular")?>"><i
-                                    class="dripicons-user-group"></i> Matrucilar</a>
+                                    class="dripicons-user-group"></i> Inscribir Usuarios</a>
                         </li>
 
 

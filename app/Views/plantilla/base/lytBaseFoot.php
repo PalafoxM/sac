@@ -9,8 +9,8 @@
                             </div>
                             <div class="col-md-10">
                                 <div class="text-md-end footer-links d-none d-md-block">
-                                    <a href="javascript: void(0);">SECRETARIA DE FINANZAS ADMINISTRACION Y ADMINISTRACION</a>
-                                    <a href="javascript: void(0);">2024</a>
+                                    <a href="javascript: void(0);">SECRETARIA DE FINANZAS</a>
+                                    <a href="javascript: void(0);">2025</a>
                                 </div>
                             </div>
                         </div>

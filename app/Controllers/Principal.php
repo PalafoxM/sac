@@ -58,13 +58,18 @@ class Principal extends BaseController {
             $tabla = ['tabla' => 'vw_participante_moodleid', 'where' => ['visible' => 1, 'id_curso' => $id_curso]];
         }
        
+        
         $participante = $globals->getTabla($tabla);
 
        
         if(empty($participante->data)){
-          echo '<center>ID DEL CURSO NO TIENE PARTICIPANTES</center>';
-          die();
-        }
+          echo '<center>';
+          echo   '<h1 class="display-4">No hay usuarios inscritos a este curso</h1>';
+          echo   '<h3>Favor de Inscribir usuarios</h3>';
+          echo   '<button type=”button” class="btn btn-primary waves-effect waves-light" onClick="history.back()" value="Regresar">Regresar</button>';
+          echo  '</center>';        
+        die();
+       }
         
        $participantes = $participante->data;
 
@@ -113,43 +118,79 @@ class Principal extends BaseController {
             $response->error = $result->error;
             $response->data = $result->data;
            if(!empty($result->data)){
+            if(isset($result->data->nuevosUsuarios) && !empty($result->data->nuevosUsuarios)){
+                foreach($result->data->nuevosUsuarios as $e ){
+                    // Construye el array condicionalmente
+                         $whereConditions = [
+                             'visible' => 1,
+                             'id_curso' => $data['id_curso'],
+                             'userid' => $e->userid
+                         ];
+     
+                         // Ahora construimos el array final usando el array $whereConditions
+                         $tabla = [
+                             'tabla' => 'participante_moodleid',
+                             'where' => $whereConditions,
+                         ];
+     
+                     $user = $globals->getTabla($tabla);
+                  
+                    if(empty($user->data)){
+                    
+                         $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardarIdMoodle'];
+                         $dataConfig = ["tabla" => "participante_moodleid", "editar" => false ];
+                         $dataInsert = [
+                                    'id_participante' => $e->id_participante, 
+                                    'userid'          => (int)$e->userid, 
+                                    'existe'          => (int)$e->existe, 
+                                    'id_curso'         => $data['id_curso'],
+                                    'id_dependencia' =>  $session->get('id_dependencia')
+                         ];
+                         $resultado = $globals->saveTabla($dataInsert, $dataConfig, $dataBitacora);
+                      
+                     } 
+                    
+                   } 
+            }else{
+                foreach($result->data->usuariosVerificados as $e ){
+                    // Construye el array condicionalmente
+                         $whereConditions = [
+                             'visible' => 1,
+                             'id_curso' => $data['id_curso'],
+                         ];
+     
+                         // Agrega 'userid' solo si existe en el objeto $e
+                         if (isset($e->userid)) {
+                             $whereConditions['userid'] = $e->userid;
+                         }
+     
+                         // Ahora construimos el array final usando el array $whereConditions
+                         $tabla = [
+                             'tabla' => 'participante_moodleid',
+                             'where' => $whereConditions,
+                         ];
+     
+                     $user = $globals->getTabla($tabla);
+                  
+                    if(empty($user->data)){
+                    
+                         $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardarIdMoodle'];
+                         $dataConfig = ["tabla" => "participante_moodleid", "editar" => false ];
+                         $dataInsert = [
+                                    'id_participante' => $e->id_participante, 
+                                    'userid'          => isset($e->userid) ? $e->userid : null, 
+                                    'existe'          => (int)$e->existe, 
+                                    'id_curso'         => $data['id_curso'],
+                                    'id_dependencia' =>  $session->get('id_dependencia')
+                         ];
+                         $resultado = $globals->saveTabla($dataInsert, $dataConfig, $dataBitacora);
+                      
+                     } 
+                    
+                   } 
+            }
          
-              foreach($result->data->usuariosVerificados as $e ){
-               // Construye el array condicionalmente
-                    $whereConditions = [
-                        'visible' => 1,
-                        'id_curso' => $data['id_curso'],
-                    ];
-
-                    // Agrega 'userid' solo si existe en el objeto $e
-                    if (isset($e->userid)) {
-                        $whereConditions['userid'] = $e->userid;
-                    }
-
-                    // Ahora construimos el array final usando el array $whereConditions
-                    $tabla = [
-                        'tabla' => 'participante_moodleid',
-                        'where' => $whereConditions,
-                    ];
-
-                $user = $globals->getTabla($tabla);
-             
-               if(empty($user->data)){
-               
-                    $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardarIdMoodle'];
-                    $dataConfig = ["tabla" => "participante_moodleid", "editar" => false ];
-                    $dataInsert = [
-                               'id_participante' => $e->id_participante, 
-                               'userid'          => isset($e->userid) ? $e->userid : null, 
-                               'existe'          => (int)$e->existe, 
-                               'id_curso'         => $data['id_curso'],
-                               'id_dependencia' =>  $session->get('id_dependencia')
-                    ];
-                    $resultado = $globals->saveTabla($dataInsert, $dataConfig, $dataBitacora);
-                 
-                } 
-               
-              } 
+            
               
 
            }
@@ -174,6 +215,8 @@ class Principal extends BaseController {
         if($session->get('id_perfil') >= 5){
             $cursoPadre  = $globals->getTabla(['tabla' => 'cursos_perfil', 'where' => ['visible' => 1, 'id_padre' => $session->get('id_padre')]]);
         }
+
+
         if(isset($cursoPadre->data) && !empty($cursoPadre->data)){
             $id_cursos= $cursoPadre->data;
             foreach ($id_cursos as $key) {
@@ -192,9 +235,13 @@ class Principal extends BaseController {
             }
         }
 
-        if ($session->get('id_dependencia') >= 5) {
+        if ($session->get('id_perfil') >= 5) {
             $participantes = $globals->getTabla(['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_dependencia' => $session->get('id_dependencia')]]);
-        } else {
+        } 
+        if ($session->get('id_perfil') == 4 || $session->get('id_perfil') == 4){
+            $participantes = $globals->getTabla(['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_dep_padre'  => $session->get('id_perfil')]]);
+        }
+        if ($session->get('id_perfil') == 1){
             $participantes = $globals->getTabla(['tabla' => 'participantes', 'where' => ['visible' => 1]]);
         }
 
@@ -627,6 +674,8 @@ class Principal extends BaseController {
                 return $this->respond($response);
             }
         }
+
+      
     
 
         $hoy = date("Y-m-d H:i:s"); 
@@ -727,9 +776,9 @@ class Principal extends BaseController {
         }
         if(empty($data['correo_enlace'])){
             $response->error = true;
-            $response->respuesta = 'El campo correo del enclace es requerido';
+            $response->respuesta = 'El campo correo del enlace es requerido';
         }
-        if(empty($data['id_nivel'])){
+        if($data['id_nivel'] == 'Seleccione'){
             $response->error = true;
             $response->respuesta = 'El campo nivel es requerido';
         }
