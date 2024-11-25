@@ -41,10 +41,7 @@
                             <a href="<?= base_url("/index.php/Agregar/usuarioSti")?>"><i class="dripicons-plus"></i>Alta
                                 SAC</a>
                         </li>
-                        <li>
-                            <a href="<?= base_url("/index.php/Agregar")?>"><i class="dripicons-plus"></i> Aulas
-                                virtuales</a>
-                        </li>
+                    
                         <li>
                             <a href="<?= base_url("/index.php/Inicio")?>"><i class="dripicons-search"></i> Buscar</a>
                         </li>

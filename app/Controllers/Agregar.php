@@ -176,6 +176,10 @@ class Agregar extends BaseController {
     public function Curso()
     {
         $session = \Config\Services::session();
+        if($session->get('id_perfil') >= 5){
+            header('Location:'.base_url().'index.php/Principal/Matricular');            
+            die();
+        }
         $data             = array();
         $catalogos        = new Mglobal;
         
@@ -406,6 +410,10 @@ class Agregar extends BaseController {
     public function Evento($id_categoria)
     {
         $session = \Config\Services::session();
+        if($session->get('id_perfil') >= 5){
+            header('Location:'.base_url().'index.php/Principal/Matricular');            
+            die();
+        }
         $response = new \stdClass();
         $data['id_categoria'] = $id_categoria;
         $data['scripts'] = array('inicio');
