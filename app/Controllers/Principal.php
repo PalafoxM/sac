@@ -52,7 +52,7 @@ class Principal extends BaseController {
         $session = \Config\Services::session();
         $globals = new Mglobal;
         $data = [];
-        if ($session->get('id_dependencia') >= 5) {
+        if ($session->get('id_perfil') >= 5) {
             $tabla = ['tabla' => 'vw_participante_moodleid', 'where' => ['visible' => 1, 'id_curso' => $id_curso,  'id_dependencia' =>  $session->get('id_dependencia')]];
         } else {
             $tabla = ['tabla' => 'vw_participante_moodleid', 'where' => ['visible' => 1, 'id_curso' => $id_curso]];

@@ -39,7 +39,7 @@
                     <ul class="side-nav-second-level">
                         <li>
                             <a href="<?= base_url("/index.php/Agregar/usuarioSti")?>"><i class="dripicons-plus"></i>Alta
-                                STI</a>
+                                SAC</a>
                         </li>
                         <li>
                             <a href="<?= base_url("/index.php/Agregar")?>"><i class="dripicons-plus"></i> Aulas

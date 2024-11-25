@@ -22,9 +22,9 @@
                 <td><?= htmlspecialchars($curso['enddate']) ?></td>
                 <td>
                     <button type="button" class="btn btn-secondary rounded-pill"
-                        onclick="matricular(<?= $curso['id'] ?>)">Matricular</button>
+                        onclick="matricular(<?= $curso['id'] ?>)">Inscribir</button>
                     <a href="<?= base_url('index.php/Principal/cursoMatriculados/'.$curso['id']) ?>" type="button"
-                        class="btn btn-light  rounded-pill">Matriculados</a>
+                        class="btn btn-light  rounded-pill">Inscritos</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -156,7 +156,7 @@ $(document).ready(function() {
                     $('#modalMatricular').modal('hide');
                     $("#btn_load").hide();
                     $("#btn_save").show();
-                    //window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
+                    window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
                 }
 
                 // Actualizar la tabla principal si es necesario

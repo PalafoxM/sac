@@ -263,7 +263,7 @@ td {
                                         <?php 
                                             // Verifica si el perfil actual en sesión es igual a 5
                                             if ($session->get('id_perfil') >= 4) {
-                                                if ($p->id_perfil >= 4 && $p->id_perfil <= 6): ?>
+                                                if ($p->id_perfil >= 5 && $p->id_perfil <= 6): ?>
                                                                         <option value="<?php echo $p->id_perfil; ?>">
                                                                             <?php echo $p->dsc_perfil; ?>
                                                                         </option>

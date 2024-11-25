@@ -150,6 +150,10 @@ class Agregar extends BaseController {
     public function usuarioSti()
     {
         $session = \Config\Services::session();
+        if($session->get('id_perfil') >= 5){
+            header('Location:'.base_url().'index.php/Principal/Matricular');            
+            die();
+        }
         $data             = array();
         $catalogos        = new Mglobal;
         $dataDB           = array('tabla' => 'cat_nivel', 'where' => ['visible' => 1]);
@@ -650,7 +654,7 @@ class Agregar extends BaseController {
         $categoria = "";
         $quizz = $catalogos->createCurso($data, 'traerQuiz');
         $details = $catalogos->createCurso($data, 'getCourseDetailsById');
-
+        //die( var_dump( $quizz ) );
         if(!empty($quizz->data)){
             $data['quizz'] = $quizz->data;
         }
