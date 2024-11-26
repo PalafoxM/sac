@@ -37,7 +37,7 @@
         
         <li class="dropdown notification-list d-lg-none">
             <div id="titulo">
-                <h3 >SAC - SISTEMA DE ADMINITRACION DE CURSOS 3.0   </h3>
+                <h3 >SAC - SISTEMA DE ADMINITRACION DE CAPACITACION 3.0   </h3>
             </div>
         </li>
 
@@ -76,7 +76,7 @@
 
         <div id="titulo">
             <!-- <h4 class="neon">SISTEMA DE TURNOS 2.0</h4> -->
-            <h4>SAC - SISTEMA DE ADMINITRACION DE CURSOS 3.0 </h4>
+            <h4>SAC - SISTEMA DE ADMINITRACION DE CAPACITACION 3.0 </h4>
         </div>
         
     </div>

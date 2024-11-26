@@ -60,7 +60,8 @@ class Login extends BaseController {
         
         if($usuario && $contrasenia){
             $response = $catalogos->getTabla($dataDB);
-           // die(print_r($response));
+            //var_dump($response);
+            //die();
             if(sizeof($response->data) >= 1){
                 $session->set('logueado', 1);
                 $session->set('id_usuario',$response->data[0]->id_usuario);

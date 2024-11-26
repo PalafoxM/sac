@@ -500,7 +500,7 @@ class Agregar extends BaseController {
         $response = new \stdClass();
      
         $catalogos      = new Mglobal;
-       
+      
         foreach($data as $key){
              $insert = [
                 'fullname'   => $key['fullname'],

@@ -134,7 +134,7 @@ function uploadCSV() {
                     if (!response.error) {
 
                         Swal.fire("Éxito", "Los datos se guardaron correctamente.", "success");
-                        window.location.reload();
+                        //window.location.reload();
                     } else {
                         Swal.fire("Error",
                             "Inconsistencia en el archivo, favor de verificar el ID moodle",
