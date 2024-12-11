@@ -42,14 +42,30 @@ saeg.principal = (function () {
                 return `<span class="badge badge-success-lighten">Sin observaciones</span>`;
             }
         },
-     /*    formattCheck: function(value, row, index) {
-            return `
-                <div class="form-check form-checkbox-success mb-2">
-                    <input type="checkbox" class="form-check-input select-participant" value="${row.id_participante}" data-id="${row.id_participante}">
-                    <label class="form-check-label">Seleccionar</label>
-                </div>`;
-        }, */
+        formattCat: function(value, row, index) {
+            // Aquí puedes personalizar el color y estilo según el valor de `value`
+            if (row.activo == 0) {
+                return `<span class="badge badge-danger-lighten">Inactivo</span>`;
+            } else {
+                return `<span class="badge badge-success-lighten">Activo</span>`;
+            }
+        },
+
         
+        formattCategoria: function(value, row){
+            if (row.activo == 0) {
+                return "<a onclick='saeg.principal.activarCategoria(" + row.id_categorias_padre + ",1)' href='javascript:void(0);' class='action-icon'><i class='uil-eye-slash'></i></a>";
+            } else {
+                return "<a onclick='saeg.principal.activarCategoria(" + row.id_categorias_padre + ",0)' href='javascript:void(0);' class='action-icon'><i class='uil-eye'></i></a>";
+            }             
+        },
+        formattDependencia: function(value, row){
+                let accion = "<div class='contenedor'>"+
+                "<a  data-bs-toggle='modal' data-bs-target='#modalDependencia' onclick='saeg.principal.updateDependencia("+row.id_dependencia+")' href='javascript:void(0);' class='action-icon'><i class='mdi mdi-square-edit-outline'></i> </a>"+
+                "<a onclick='saeg.principal.eliminarDependencia("+row.id_dependencia+")' href='javascript:void(0);' class='action-icon'><i class='mdi mdi-delete'></i></a>"+
+                "</div>"; 
+        return accion;
+        },
         formattParticipantes: function(value, row){
           
                 let accion = "<div class='contenedor'>"+
@@ -75,6 +91,44 @@ saeg.principal = (function () {
            
         return accion;
         },
+        activarCategoria: function(id_categoria_padre, accion){
+            Swal.fire({
+                title: "Atención",
+                text: "Esta operación activa la categoria principal",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Proceder"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $("#btn_csv").hide();
+                    $("#load_csv").show();
+                    $.ajax({
+                        url: base_url + "index.php/Principal/activarCategoria",
+                        type: 'POST',
+                        data: {id_categoria_padre:id_categoria_padre, accion:accion},
+                        dataType: 'json',
+                        success: function(response) {
+                            if (!response.error) {
+        
+                                Swal.fire("Éxito", "Los datos se guardaron correctamente.", "success");
+                                $('#getCategoria').bootstrapTable('refresh');
+                             
+                            } 
+                           
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(error);
+                            Swal.fire("Error", "Favor de llamar al Administrador", "error")
+                            $("#btn_csv").show();
+                            $("#load_csv").hide();
+                            //alert("Error en la solicitud: " + error);
+                        }
+                    });
+                }
+            }); 
+        },
         login: function(){
             $("#login").submit(function (e) {
                 e.preventDefault();                
@@ -97,6 +151,36 @@ saeg.principal = (function () {
                         Swal.fire("Error!", textStatus, errorThrown, "error");  
                         console.log('error:' + textStatus, errorThrown);
                     }
+                });
+            });
+        },
+        formDependencia: function(){
+            $("#formDependencia").submit(function (e) {
+                e.preventDefault();                
+                $.ajax({
+                    type: "POST",
+                    url: base_url + "index.php/Principal/guardarDependencia",
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function (response) {
+                        
+                        if(response.error == false){
+                            Swal.fire("Exitó", response.respuesta, "success");
+                            $('#formDependencia')[0].reset();
+                            $('#getDependencia').bootstrapTable('refresh');
+                            $('#modalDependencia').modal('hide');
+                                                    
+                        }else{
+                            Swal.fire("Error", response.respuesta , "error"); 
+                            //$("#formParticipante")[0].reset();                         
+                            return false;
+                        } 
+                    },
+                    error: function (response,jqXHR, textStatus, errorThrown) {
+                        var res= JSON.parse (response.responseText);
+                       //  console.log(res.message);
+                        Swal.fire("Error", '<p> '+ res.message + '</p>');  
+                   }
                 });
             });
         },
@@ -200,6 +284,44 @@ saeg.principal = (function () {
                 });
           
         },
+        eliminarDependencia : function(id){
+            console.log(id);
+            Swal.fire({
+                title: "Atención",
+                text: "Esta acción borrara la Dependencia",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Eliminar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: base_url + "index.php/Principal/eliminarDependencia",
+                        type: 'POST',
+                        dataType: "json",
+                        data:{id_dependencia:id},
+                        success: function(response) {
+                            console.log( response);
+                            if(response.error){
+                                Swal.fire("Error",response.respuesta , "error")
+                            }else{
+                                Swal.fire("Éxito",response.respuesta , "success");
+                                $('#getDependencia').bootstrapTable('refresh');
+                                //window.location.reload();
+                                //$('#products-datatable').DataTable().ajax.reload(null, false);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(error);
+                            Swal.fire("Error", "Favor de llamar al Administrador", "error")
+                        }
+                    });
+                }
+            });
+           
+        },
         eliminarParticipante : function(id){
             console.log(id);
             Swal.fire({
@@ -276,6 +398,34 @@ saeg.principal = (function () {
            
         },
   
+        updateDependencia: function(id){
+            $("#btn_guardar").hide();
+            $("#btn_load").show()
+                $.ajax({
+                    url: base_url + "index.php/Principal/getDependencia",
+                    type: 'POST',
+                    dataType: "json",
+                    data:{id_dependencia:id},
+                    success: function(response) {
+                        console.log( response);
+                        if(response.error){
+                            Swal.fire("Error",response.respuesta , "error")
+                        }else{
+                            console.log(response);
+                            $("#id_dependencia").val(response.id_dependencia);
+                            $("#id_depen").val(response.id_dependencia);
+                            $("#dsc_dependencia").val(response.dsc_dependencia);
+                           
+                           $("#btn_guardar").show();
+                           $("#btn_load").hide()
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                        Swal.fire("Error", "Favor de llamar al Administrador", "error")
+                    }
+                });
+        },
         updateParticipante: function(id){
             $("#btn_guardar").hide();
             $("#btn_load").show()
@@ -373,6 +523,39 @@ saeg.principal = (function () {
                     }
                 });
         },
+        cambiosEstatus: function(id_participante, isChecked) {
+            console.log(`ID Participante: ${id_participante}, Checked: ${isChecked}`);
+            $.ajax({
+                url: base_url + "index.php/Principal/cambiosEstatus",
+                type: 'POST',
+                dataType: "json",
+                data:{id_participante,isChecked },
+                success: function(response) {
+                    console.log( response);
+                    if(response.error){
+                        Swal.fire("Error",response.respuesta , "error")
+                    }else{
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-right',
+                            showConfirmButton: false,
+                            timer: 2500
+                          })
+                          
+                          Toast.fire({
+                              type: 'success',
+                              title: 'Se guardo es estatus',
+                              icon: 'success'
+                          });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    Swal.fire("Error", "Favor de llamar al Administrador", "error")
+                }
+            });
+        }
+        
         
     }
     

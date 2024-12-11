@@ -182,9 +182,12 @@ class Agregar extends BaseController {
         }
         $data             = array();
         $catalogos        = new Mglobal;
-        
+        $result = $catalogos ->getCategories('getCategories');
+    
+ 
         $data['scripts'] = array('inicio');
         $data['perfil']  =  $session->get('id_perfil');
+  
         $data['edita'] = 0;
         $data['nombre_completo'] = $session->nombre_completo; 
         $data['contentView'] = 'formularios/vCurso';                
@@ -526,6 +529,26 @@ class Agregar extends BaseController {
 
 
     
+    public function crearDependencia()
+    {
+        $session = \Config\Services::session();
+        $response = new \stdClass();
+        $data = $this->request->getPost();
+        $catalogos      = new Mglobal;
+        $insert=[
+            'dsc_dependencia' => $data['dsc_dependencia'],                      
+        ];
+      
+         $dataBitacora = ['id_user' =>  $session->get('id_usuario'), 'script' => 'Agregar.php/saveDependencia'];
+
+        $dataConfig = [
+            "tabla"=>"cat_dependencia",
+            "editar"=>false,
+           // "idEditar"=>['id_curso_moodle'=>$formData['id_curso']]
+        ];
+       $result = $catalogos->saveTabla($insert,$dataConfig,$dataBitacora);
+        return $this->respond($result); 
+    }
     public function crearSubCategoria()
     {
         $session = \Config\Services::session();

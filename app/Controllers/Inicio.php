@@ -80,37 +80,126 @@ class Inicio extends BaseController {
          return $this->respond($response->data);
     }
      // Función para recorrer el árbol y generar las rutas jerárquicas
-     public function getCurso()
-     {
-         $session = \Config\Services::session();
-         $principal = new Mglobal;
-         $dataDB = array('tabla' => 'categoria', 'where' => ['visible ' => 1]);
-         $response = $principal->getTabla($dataDB);
-     
-         // Obtener categorías y construir el árbol de categorías
-         $result = $principal->getCategories('getCategories');
-         $categoryMap = [];
-         $tree = [];
-         
-         if (!empty($result->data)) {
-             foreach ($result->data as $category) {
-                 $category->children = [];
-                 $categoryMap[$category->id] = $category;
-             }
-             foreach ($result->data as $category) {
-                 if ($category->parent == 0 || !isset($categoryMap[$category->parent])) {
-                     $tree[] = &$categoryMap[$category->id];
-                 } else {
-                     $categoryMap[$category->parent]->children[] = &$categoryMap[$category->id];
-                 }
-             }
-         }
-     
-         // Formatear el árbol para jstree
-         $formattedTree = $this->formatForJsTree($tree);
-     
-         return $this->respond($formattedTree);
-     }
+  
+        public function getCurso()
+    {
+        $session = \Config\Services::session();
+        $principal = new Mglobal;
+        $dataDB = array('tabla' => 'categoria', 'where' => ['visible ' => 1]);
+        $response = $principal->getTabla($dataDB);
+
+        // Obtener categorías y construir el árbol de categorías
+        $result = $principal->getCategories('getCategories');
+        $categoryMap = [];
+        $tree = [];
+
+        if (!empty($result->data)) {
+            foreach ($result->data as $category) {
+                $category->children = [];
+                $categoryMap[$category->id] = $category;
+            }
+            foreach ($result->data as $category) {
+                if ($category->parent == 0 || !isset($categoryMap[$category->parent])) {
+                    $tree[] = &$categoryMap[$category->id];
+                } else {
+                    $categoryMap[$category->parent]->children[] = &$categoryMap[$category->id];
+                }
+            }
+        }
+  
+       if($session->get('id_perfil') == 1){
+        if (!empty($result->data)) {
+            foreach ($result->data as $category) {
+                if ($category->parent == 0) { // Filtrar solo categorías padre
+                    $dataInsert = [
+                        'id_categoria'  => (int)$category->id,
+                        'dsc_categoria' => $category->name
+                    ];
+                    
+                    $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardaCategoriasPadre'];
+                    
+                   
+                    $dataConfig = [
+                        "tabla"=>"categorias_padre",
+                        "editar"=>false
+                    ];
+                    $cat  = $principal->getTabla(['tabla' => 'categorias_padre', 'where' => ['id_categoria' => (int)$category->id, 'visible' =>1]]); 
+                    if(isset($cat->data) && empty($cat->data)){
+                        $principal->saveTabla($dataInsert,$dataConfig,$dataBitacora);
+                    }
+                    
+
+                }
+            }
+        }
+       }
+       
+
+        // Filtrar categorías si el perfil es diferente de 1
+        if ($session->get('id_perfil') != 1) {
+            $cursos = []; // Array para múltiples categorías
+            $activo = $principal->getTabla(['tabla' => 'categorias_padre', 'where' => ['visible' => 1, 'activo' => 1]]);
+            
+            // Si hay categorías activas, se agregan al array
+            if (isset($activo->data) && !empty($activo->data)) {
+                foreach ($activo->data as $categoria) {
+                    $cursos[] = $categoria->dsc_categoria; // Agregar cada categoría activa
+                }
+            } else {
+                $cursos[] = 'CURSO 2025'; // Valor por defecto si no hay activas
+            }
+            
+            $tree = $this->filterTree($tree, $cursos); // Filtrar con múltiples categorías
+        }
+        
+        
+        // Formatear el árbol para jsTree
+        $formattedTree = $this->formatForJsTree($tree);
+       
+        return $this->respond($formattedTree);
+    }
+
+    /**
+     * Filtrar nodos del árbol que coincidan con un nombre específico.
+     */
+    private function filterTree($tree, $cursos) {
+        $filteredTree = [];
+        
+        foreach ($tree as $node) {
+            // Verificar si el nodo actual está en el array de categorías permitidas
+            if (in_array($node->name, $cursos)) {
+                $filteredTree[] = $node;
+            } elseif (!empty($node->children)) {
+                // Filtrar los hijos si los hay
+                $node->children = $this->filterTree($node->children, $cursos);
+                if (!empty($node->children)) {
+                    $filteredTree[] = $node;
+                }
+            }
+        }
+        
+        return $filteredTree;
+    }
+    
+ /*    private function filterTree($tree, $targetName)
+    {
+        $filteredTree = [];
+        foreach ($tree as $node) {
+            // Filtrar si el nombre coincide o si sus hijos tienen coincidencias
+            if ($node->name === $targetName) {
+                $filteredTree[] = $node;
+            } elseif (!empty($node->children)) {
+                $node->children = $this->filterTree($node->children, $targetName);
+                if (!empty($node->children)) {
+                    $filteredTree[] = $node;
+                }
+            }
+        }
+        return $filteredTree;
+    } */
+
+
+
      
      // Método privado para formatear el árbol en la estructura requerida por jstree
      private function formatForJsTree($categories) {

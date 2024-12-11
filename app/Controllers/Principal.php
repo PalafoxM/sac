@@ -46,6 +46,76 @@ class Principal extends BaseController {
         $this->_renderView($data);
         
     }
+    public function Preinscritos($id_curso = null)
+    {  
+       
+        $session = \Config\Services::session();
+        $globals = new Mglobal;
+        $data = [];
+        if ($session->get('id_perfil') >= 5) {
+            $tabla = ['tabla' => 'vw_preinscritos', 'where' => ['visible' => 1, 'id_curso' => (int)$id_curso,  'id_dependencia' =>  $session->get('id_dependencia')]];
+        } elseif ($session->get('id_perfil') == 4) {
+            $tabla = ['tabla' => 'vw_preinscritos', 'where' => ['visible' => 1, 'id_curso' => (int)$id_curso,  'id_padre' => 4]];
+            $tablaEnlace = ['tabla' => 'vw_usuario',  'where' => ['visible' => 1, 'id_padre' => 4]];
+            $enlace       = $globals->getTabla($tablaEnlace);
+            $data['enlace'] = (isset($enlace->data) && !empty($enlace->data))?$enlace->data:'';
+  
+        } else {
+            $tabla = ['tabla' => 'preinscrito', 'where' => ['visible' => 1, 'id_curso' => $id_curso]];
+        }
+   
+        $preinscrito = $globals->getTabla($tabla);
+    
+       
+        if(empty($preinscrito->data)){
+          echo '<center>';
+          echo   '<h1 class="display-4">No hay usuarios inscritos a este curso</h1>';
+          echo   '<h3>Favor de Inscribir usuarios</h3>';
+          echo   '<button type=”button” class="btn btn-primary waves-effect waves-light" onClick="history.back()" value="Regresar">Regresar</button>';
+          echo  '</center>';        
+        die();
+       }
+        
+       $preinscrito = $preinscrito->data;
+   
+
+        $data['scripts'] = array('principal');
+
+        $data['preinscrito'] = ($session->get('id_perfil')==4 || $session->get('id_perfil')==3)?'':$preinscrito;
+        $data['id_curso'] = $id_curso;
+       
+        $data['contentView'] = 'secciones/vPreinscrito';                
+        $this->_renderView($data);
+        
+    }
+    public function cambiosEstatus()
+    {
+        $session = \Config\Services::session();
+        $globals = new Mglobal;
+        $response = new \stdClass();
+        $id_participante = $this->request->getPost('id_participante');
+        (bool)$isChecked       = $this->request->getPost('isChecked');
+      
+        $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardaCategoriasPadre'];
+        $dataConfig = [
+            "tabla"=>"participante_moodleid",
+            "editar"=>true,
+            'idEditar' => ['id_participante' => (int)$id_participante ],
+        ];
+      
+        if($isChecked == 'true'){
+         
+             $result = $globals->saveTabla(['existe' => 3],$dataConfig,$dataBitacora);
+            
+        }else{
+            $result = $globals->saveTabla(['existe' => 0],$dataConfig,$dataBitacora);
+        }
+
+        $response->error     = $result->error;
+        $response->respuesta = $result->respuesta;
+        return $this->respond($response);
+        
+    }
     public function cursoMatriculados($id_curso = null)
     {  
        
@@ -72,6 +142,8 @@ class Principal extends BaseController {
        }
         
        $participantes = $participante->data;
+       //var_dump($participantes  );
+       //die();
 
         $data['scripts'] = array('principal');
 
@@ -79,6 +151,84 @@ class Principal extends BaseController {
         $data['contentView'] = 'secciones/vcursoMatriculados';                
         $this->_renderView($data);
         
+    }
+    public function getPreinscritos()
+    {
+        $response = new \stdClass();
+        $session = \Config\Services::session();
+        $response->error = true;
+        $response->respuesta = "Error|Problemas en la Consulta";
+        $globals = new Mglobal;
+        $id_dependencia = $this->request->getGet('id_dependencia');
+        if (!$id_dependencia) {
+            return $this->response->setJSON(['error' => 'No se recibió un ID de dependencia.']);
+        }
+        $tabla = ['tabla' => 'vw_preinscritos', 'where' => ['visible' => 1,  'id_dependencia' =>  $id_dependencia]];
+        $result= $globals->getTabla($tabla);
+        if(isset($result->data) && !empty($result->data)){
+            $response->error = false;
+            $response->data = $result->data;
+        }
+
+        return $this->respond($response);
+    }
+    public function Preinscribir()
+    {
+        $response = new \stdClass();
+        $session = \Config\Services::session();
+        $globals = new Mglobal;
+        $response->error = true;
+        $response->respuesya = 'Error| No se guardo el registro';
+        $data = $this->request->getPost();
+       
+         
+
+        if(!empty($data['participantes'])){
+           foreach($data['participantes'] as $key){
+            if ($session->get('id_perfil') >= 5) {
+                $tabla = ['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_participante' => (int)$key,  'id_dependencia' =>  $session->get('id_dependencia')]];
+            } else {
+                $tabla = ['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_participante' => $key]];
+            }
+
+           $user = $globals->getTabla($tabla)->data[0];
+            $usuarios = [
+                         'id_participante' =>  (int)$key, 
+                         'id_curso'        =>  (int)$data['id_curso'], 
+                         'id_dependencia'  =>  (int)$session->get('id_dependencia'), 
+                         'id_padre'        =>  (int)$session->get('id_padre'), 
+                         'usu_reg'         =>  $session->get('id_usuario'),
+                         'fec_reg'         =>  date('Y-m-d H:i:s'),
+
+               ]; 
+               
+               $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardarPreinscrito'];
+                    
+                   
+               $dataConfig = [
+                   "tabla"=>"preinscrito",
+                   "editar"=>false
+               ];
+               $tabla = ['tabla' => 'preinscrito', 'where' => ['id_participante' => (int)$key, 'visible' =>1, 'id_curso'=>  (int)$data['id_curso'], 'id_dependencia'  =>  (int)$session->get('id_dependencia')]];
+               $userPreinscrito = $globals->getTabla($tabla);
+               if(empty($userPreinscrito->data)){
+                $result = $globals->saveTabla($usuarios, $dataConfig,$dataBitacora);
+                    if(!$result->error){
+                        $response->error = false;
+                        $response->respuesta = $result->respuesta;
+                    }
+                }else{
+                    $response->error = false;
+                    $response->respuesta = 'usuario ya existe en la base de datos';
+                }
+
+           }
+        }
+       
+
+
+        return $this->respond($response);
+    
     }
     public function MatricularCurso()
     {
@@ -88,27 +238,31 @@ class Principal extends BaseController {
         $data = $this->request->getPost();
         $usuarios = [];
          
+   
     
-       
-
         if(!empty($data['participantes'])){
            foreach($data['participantes'] as $key){
-            if ($session->get('id_dependencia') >= 5) {
+            if ($session->get('id_perfil') >= 5) {
                 $tabla = ['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_participante' => (int)$key,  'id_dependencia' =>  $session->get('id_dependencia')]];
             } else {
                 $tabla = ['tabla' => 'participantes', 'where' => ['visible' => 1, 'id_participante' => $key]];
             }
-
-           $user = $globals->getTabla($tabla)->data[0];
-            $usuarios[] = [
-                         'id_participante' =>  (int)$key, 
-                         'curp'            =>  $user->curp, 
-                         'nombre'          =>  $user->nombre, 
-                         'primer_apellido' =>  $user->primer_apellido, 
-                         'segundo_apellido'=>  $user->segundo_apellido, 
-                         'correo'          =>  $user->correo
-               ];  
+           
+           $users = $globals->getTabla($tabla);
+           $user = (isset($users->data) && !empty($users->data))?$users->data[0]:'';
+           if($user){
+                $usuarios[] = [
+                    'id_participante' =>  (int)$key, 
+                    'curp'            =>  $user->curp, 
+                    'nombre'          =>  $user->nombre, 
+                    'primer_apellido' =>  $user->primer_apellido, 
+                    'segundo_apellido'=>  $user->segundo_apellido, 
+                    'correo'          =>  $user->correo
+                ];
            }
+
+           }
+       
         }
        
         $datos = ['usuarios' =>  $usuarios, 'courseId' => $data['id_curso'] ];
@@ -143,6 +297,7 @@ class Principal extends BaseController {
                                     'id_participante' => $e->id_participante, 
                                     'userid'          => (int)$e->userid, 
                                     'existe'          => (int)$e->existe, 
+                                    'observaciones'   => 'Sin observación', 
                                     'id_curso'         => $data['id_curso'],
                                     'id_dependencia' =>  $session->get('id_dependencia')
                          ];
@@ -162,6 +317,22 @@ class Principal extends BaseController {
                          // Agrega 'userid' solo si existe en el objeto $e
                          if (isset($e->userid)) {
                              $whereConditions['userid'] = $e->userid;
+                         }else{
+                            $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardarIdMoodle'];
+                            $dataConfig = ["tabla" => "participante_moodleid", "editar" => false ];
+                            $dataInsert = [
+                                       'id_participante' => $e->id_participante, 
+                                       'userid'          => null, 
+                                       'existe'          => (int)$e->existe, 
+                                       'observaciones'   => 'Correo ya existe en Moodle', 
+                                       'id_curso'         => $data['id_curso'],
+                                       'id_dependencia' =>  $session->get('id_dependencia')
+                            ];
+                            $validar = $globals->getTabla(['tabla' => 'participante_moodleid','where' => ['id_participante' => $e->id_participante, 'visible' => 1, 'existe' => 0 ]]);
+                            if(isset($validar->data) && empty($validar->data)){
+                                $resultado = $globals->saveTabla($dataInsert, $dataConfig, $dataBitacora);
+                            }
+                            
                          }
      
                          // Ahora construimos el array final usando el array $whereConditions
@@ -169,9 +340,9 @@ class Principal extends BaseController {
                              'tabla' => 'participante_moodleid',
                              'where' => $whereConditions,
                          ];
-     
+                 
                      $user = $globals->getTabla($tabla);
-                  
+                   
                     if(empty($user->data)){
                     
                          $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardarIdMoodle'];
@@ -180,14 +351,17 @@ class Principal extends BaseController {
                                     'id_participante' => $e->id_participante, 
                                     'userid'          => isset($e->userid) ? $e->userid : null, 
                                     'existe'          => (int)$e->existe, 
+                                    'observaciones'   => 'Sin observación', 
                                     'id_curso'         => $data['id_curso'],
                                     'id_dependencia' =>  $session->get('id_dependencia')
                          ];
                          $resultado = $globals->saveTabla($dataInsert, $dataConfig, $dataBitacora);
-                      
+                 
                      } 
                     
                    } 
+
+                  
             }
          
             
@@ -262,6 +436,72 @@ class Principal extends BaseController {
         $this->_renderView($data);
         
     }
+    public function deleteUserid()
+    {  
+        $session = \Config\Services::session();
+        $response = new \stdClass();
+        $response->error = true;
+        $response->respuesta = "Error al desincribir al usuario";
+        $this->globals =  new Mglobal;
+        $userid = $this->request->getPost('userid');
+        $courseid = $this->request->getPost('courseid');
+        $id_participante = $this->request->getPost('id_participante');
+        $dataInsert = [
+            'courseid' => $courseid,                      
+            'userid' => $userid
+       
+        ];
+        $result = $this->globals->createCurso($dataInsert, 'deleteUserid');
+        if(!$result->error){
+        $response->error = false;
+        $response->respuesta = $result->data;
+       
+        $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/eliminarPartiipante'];
+        $dataConfig = [
+            "tabla"=>"participantes",
+            "editar"=>true,
+            "idEditar"=>['id_participante'=>$id_participante]
+        ];
+        $res =  $this->globals->saveTabla(['visible' => 0],$dataConfig,$dataBitacora);
+   
+        }
+
+        return $this->respond($response);
+
+        
+    }
+    public function dependencia()
+    {  
+        $session = \Config\Services::session();
+
+        if($session->get('id_perfil') >= 5 ){
+            header('Location:'.base_url().'index.php/Inicio');            
+            die();
+        }
+        $catalogos        = new Mglobal;
+        $data['scripts'] = array('principal');
+        $data['edita'] = 0;
+        $data['contentView'] = 'secciones/vDependencia';                
+        $this->_renderView($data);
+        
+    }
+    public function getDependencia()
+    {  
+       
+        $session = \Config\Services::session();
+        $catalogos        = new Mglobal;
+        $id_dependencia = $this->request->getPost('id_dependencia');
+        if(isset($id_dependencia) && !empty($id_dependencia) || $id_dependencia > 0 ){
+            $dependencia = $catalogos->getTabla(['tabla' => 'cat_dependencia', 'where' => ['visible' => 1, 'id_dependencia' => $id_dependencia]]);
+            return $this->respond($dependencia->data[0]);
+        }
+        $dependencia = $catalogos->getTabla(['tabla' => 'cat_dependencia', 'where' => ['visible' => 1]]);
+        $data['scripts'] = array('principal');
+        $data['edita'] = 0;
+        $data['contentView'] = 'secciones/vDependencia';                
+        return $this->respond($dependencia->data);
+        
+    }
     public function Participantes()
     {  
        
@@ -289,6 +529,21 @@ class Principal extends BaseController {
         $data['scripts'] = array('principal');
         $data['edita'] = 0;
         $data['contentView'] = 'secciones/vParticipantes';                
+        $this->_renderView($data);
+        
+    }
+    public function Categoria()
+    {  
+       
+        $session = \Config\Services::session();
+
+        if($session->get('id_perfil') != 1 ){
+            header('Location:'.base_url().'index.php/Inicio');            
+            die();
+        }
+        $data['scripts'] = array('principal');
+        $data['edita'] = 0;
+        $data['contentView'] = 'secciones/vCategorias';                
         $this->_renderView($data);
         
     }
@@ -335,6 +590,31 @@ class Principal extends BaseController {
         return $this->respond(array_values($detenidos->data)); // Reset array keys
     }
     
+    public function getCategoria()
+    {  
+        $session = \Config\Services::session();
+        $catalogos        = new Mglobal;
+        $cat    = $catalogos->getTabla(['tabla' => 'categorias_padre', 'where' => ['visible' => 1 ]]);
+        return $this->respond($cat->data);
+    }
+    public function activarCategoria()
+    {  
+        $session = \Config\Services::session();
+        $catalogos        = new Mglobal;
+        $id_categoria_padre = $this->request->getPost('id_categoria_padre');
+        $accion = $this->request->getPost('accion');
+        
+        if($accion == 1){
+            $insert = ['activo' => 1];
+        }else{
+            $insert = ['activo' => 0];
+        }
+        $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/guardaCategoriasPadre'];
+        $dataConfig = ["tabla"=>"categorias_padre", "editar"=>true, "idEditar"=>['id_categorias_padre'=> $id_categoria_padre]];
+        $cat    = $catalogos->saveTabla($insert ,$dataConfig, $dataBitacora );
+        
+        return $this->respond($cat);
+    }
     public function getParticipantes()
     {  
         $session = \Config\Services::session();
@@ -518,6 +798,7 @@ class Principal extends BaseController {
                 } else {
                     $curpSeen[] = $d['curp']; // Guardar correo para evitar duplicados en el CSV
                 }
+               
     
                 // Verificar CURP en la tabla 'detenidos'
             /*     $detenidosDB = $this->globals->getTabla(['tabla' => 'detenidos', 'where' => [
@@ -554,6 +835,12 @@ class Principal extends BaseController {
                     $dataTrash[] = $d;
                     continue;
                 }
+                if (!preg_match('/^[^@]+@[^@]+$/', $d['correo'])) {
+                    $d['observaciones'] = 'Correo debe contener exactamente un "@" y tener estructura válida';
+                    $dataTrash[] = $d;
+                    continue;
+                }
+                
     
                 // Validar la CURP en formato y datos
                 $result = $this->validarCURP($d['curp']);
@@ -643,6 +930,28 @@ class Principal extends BaseController {
             }
         }
     }
+
+    public function guardarDependencia()
+    {
+        $session = \Config\Services::session();
+        $response = new \stdClass();
+        $this->globals = new Mglobal();
+        $data = $this->request->getPost();
+      
+        $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/updateDependencia']; 
+            $dataInsert = [
+                'dsc_dependencia'    => $data['dsc_dependencia'],           
+                'visible'            => 1
+            ];
+            $dataConfig = [
+                "tabla" => "cat_dependencia",
+                "editar" => true,
+                "idEditar" => ['id_dependencia' => $data['id_dependencia']]
+            ];
+        $response = $this->globals->saveTabla($dataInsert, $dataConfig, $dataBitacora);
+        return $this->respond($response);
+        
+    }
     
     public function guardarParticipantes()
     {  
@@ -688,14 +997,14 @@ class Principal extends BaseController {
             'fec_nac'               => date("Y-m-d", strtotime($data['fec_nac'])),   
             'rfc'                   => $data['rfc'],   
             'correo'                => $data['correo'],   
-            'id_sexo'               => $data['id_sexo'],   
-            'id_nivel'              => $data['id_nivel'],   
-            'id_dependencia'        => $session->get('id_dependencia'),   
+            'id_sexo'               => (int)$data['id_sexo'],   
+            'id_nivel'              => (int)$data['id_nivel'],   
+            'id_dependencia'        => (int)$session->get('id_dependencia'),   
             'funcion'               => $data['funcion'],   
             'denominacion_funcional'=> $data['denominacion_funcional'],   
             'area'                  => $data['area'],   
             'jefe_inmediato'        => $data['jefe_inmediato'],   
-            'id_municipio'          => $data['id_municipio'],   
+            'id_municipio'          => (int)$data['id_municipio'],   
             'centro_gestor'         => $data['centro_gestor'],   
             'correo_enlace'        => $data['correo_enlace'],   
             'id_dep_padre'          => $session->get('id_dependencia'),
@@ -797,6 +1106,28 @@ class Principal extends BaseController {
         return empty($registro->data);
     }
 
+    public function eliminarDependencia()
+    {
+        $session = \Config\Services::session();
+        $response = new \stdClass();
+        $response->error = false;
+        $response->respuesta = 'Dependencia se elimino correctamente';
+        // $response->error = true;
+        $this->globals = new Mglobal();
+  
+        $id_dependencia = $this->request->getPost('id_dependencia');
+       
+        if(isset($id_dependencia) && $id_dependencia >= 0){
+            $dataBitacora = ['id_user' => $session->get('id_usuario'), 'script' => 'Agregar.php/eliminarDetenidos'];
+            $dataConfig   =  ["tabla" => "cat_dependencia", "editar" => true, "idEditar"=>['id_dependencia'=>$id_dependencia] ];
+            $data = ['visible' => 0];
+            
+            $result = $this->globals->saveTabla($data, $dataConfig, $dataBitacora);
+        }
+       
+        return $this->respond($response);
+       
+    }
     public function eliminarDetenido()
     {
         $session = \Config\Services::session();

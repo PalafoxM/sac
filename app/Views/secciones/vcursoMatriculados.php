@@ -1,3 +1,4 @@
+<?php  $session = \Config\Services::session() ?>
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -30,6 +31,8 @@
                                         <th>NOMBRE</th>
                                         <th>CORREO</th>
                                         <th>ESTATUS</th>
+                                        <?php if((int)$session->get('id_perfil') == 4 || (int)$session->get('id_perfil') == 5): ?>
+                                        <th>ACCION</th><?php endif ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -48,6 +51,14 @@
                                                                                     <span class="badge bg-danger" style="pointer-events: none;">Sin Inscribir</span>
                                                                                 </span>
                                                                             </div>' ?></td>
+                                        <?php if((int)$session->get('id_perfil') == 4 || (int)$session->get('id_perfil') == 5): ?>
+                                        <td>
+                                            <center><a style="cursor: pointer;"
+                                                    onclick="eliminar(<?= $participante->userid ?>, <?= $participante->id_curso ?>, <?= $participante->id_participante ?>)"><i
+                                                        class="dripicons-trash"></i></a></center>
+                                        </td>
+                                        <?php endif ?>
+
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -61,3 +72,48 @@
         </div> <!-- end card-->
     </div> <!-- end col -->
 </div>
+
+<script>
+function eliminar(userid, courseid, id_participante) {
+    Swal.fire({
+        title: "Atención",
+        text: "Esta operación eliminara el usuario en Moodle y SAC",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Proceder"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $("#btn_csv").hide();
+            $("#load_csv").show();
+            $.ajax({
+                url: base_url + "index.php/Principal/deleteUserid",
+                type: 'POST',
+                data: {
+                    userid: userid,
+                    courseid: courseid,
+                    id_participante: id_participante
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (!response.error) {
+
+                        Swal.fire("Éxito", "Los datos se guardaron correctamente.", "success");
+                        //$('#getParticipantes').bootstrapTable('refresh');
+                        window.location.reload();
+                    }
+
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    Swal.fire("Error", "Favor de llamar al Administrador", "error")
+                    $("#btn_csv").show();
+                    $("#load_csv").hide();
+                    //alert("Error en la solicitud: " + error);
+                }
+            });
+        }
+    })
+}
+</script>

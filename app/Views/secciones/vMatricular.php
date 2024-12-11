@@ -24,11 +24,11 @@
                 <td>
                 <?php if ($session->get('id_perfil') !== 3 && $session->get('id_perfil') !== 4): ?>
                     <button type="button" class="btn btn-secondary rounded-pill"
-                        onclick="matricular(<?= $curso['id'] ?>)">Inscribir</button>
+                        onclick="matricular(<?= $curso['id'] ?>)">Preinscribir</button>
                 <?php endif; ?>
   
-                    <a href="<?= base_url('index.php/Principal/cursoMatriculados/'.$curso['id']) ?>" type="button"
-                        class="btn btn-light  rounded-pill">Inscritos</a>
+                    <a href="<?= base_url('index.php/Principal/Preinscritos/'.$curso['id']) ?>" type="button"
+                        class="btn btn-light  rounded-pill">Preinscritos</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -43,11 +43,11 @@
         <div class="modal-dialog modal-full-width">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="fullWidthModalLabel">Matricular</h4>
+                    <h4 class="modal-title" id="fullWidthModalLabel">PREINSCRIBIR</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
                 </div>
                 <form id="formMatricular" method="post"
-                    action="<?= base_url('/index.php/Principal/MatricularCurso') ?>">
+                    action="<?= base_url('/index.php/Principal/Preinscribir') ?>">
                     <div class="modal-body">
                         <input type="hidden" id="id_curso" name="id_curso">
                       <table id="getParticipantes" data-locale="es-MX" data-toolbar="#toolbar" data-toggle="table"
@@ -160,7 +160,8 @@ $(document).ready(function() {
                     $('#modalMatricular').modal('hide');
                     $("#btn_load").hide();
                     $("#btn_save").show();
-                   window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
+                   //window.location.href = base_url + "index.php/Principal/cursoMatriculados/" + id_curso;
+                   window.location.href = base_url + "index.php/Principal/Preinscritos/" + id_curso;
                 }
 
                 // Actualizar la tabla principal si es necesario

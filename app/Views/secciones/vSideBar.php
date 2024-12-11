@@ -73,13 +73,41 @@
                         <?php endif ?>
                         <li>
                             <a href="<?= base_url("/index.php/Principal/Matricular")?>"><i
-                                    class="dripicons-user-group"></i> Inscribir Usuarios</a>
+                                    class="dripicons-user-group"></i> Preinscripción</a>
                         </li>
 
 
                     </ul>
                 </div>
+             
             </li>
+            <?php if((int)$session->get('id_perfil') <= 4): ?>
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#turnos" aria-expanded="false" aria-controls="gestion"
+                    class="side-nav-link">
+                    <i class="dripicons-gear"></i>
+                    <span> Configurar</span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="turnos">
+                    <ul class="side-nav-second-level">
+                        <li>
+                            <a href="<?= base_url("/index.php/Principal/dependencia")?>"><i class="dripicons-plus"></i>Dependencias/Ente</a>
+                        </li>
+                    
+                        <li>
+                            <a href="<?= base_url("/index.php/Inicio")?>"><i class="dripicons-search"></i> Correo</a>
+                        </li>
+                        <?php if((int)$session->get('id_perfil') == 1): ?>
+                        <li>
+                            <a href="<?= base_url("/index.php/Principal/Categoria")?>"><i class="dripicons-search"></i> Categoria Activa</a>
+                        </li>
+                        <?php endif ?>
+
+                    </ul>
+                </div>
+            </li>
+            <?php endif ?>
 
             <!-- <?php //if((int)$session->id_perfil == -1): ?>
                     <li class="side-nav-item">

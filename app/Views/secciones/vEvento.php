@@ -1,16 +1,16 @@
 <br>
 <div class="row mb-2">
-                    <div class="col-sm-4">
-                        <button type="button" onclick="window.history.back();" class="btn btn-warning mb-2">
-                            <i class="uil-history-alt me-2"></i> Atrás
-                        </button>
-                    </div>
-                    <div class="col-sm-8">
-                        <div class="text-sm-end">
+    <div class="col-sm-4">
+        <button type="button" onclick="window.history.back();" class="btn btn-warning mb-2">
+            <i class="uil-history-alt me-2"></i> Atrás
+        </button>
+    </div>
+    <div class="col-sm-8">
+        <div class="text-sm-end">
 
-                        </div>
-                    </div><!-- end col-->
-                </div>
+        </div>
+    </div><!-- end col-->
+</div>
 <div class="container mt-5">
     <h2 class="mb-4">CURSOS</h2>
     <input type="hidden" autocomplete="off" id="id_categoria" name="id_categoria" value="<?= $id_categoria ?>">
@@ -134,6 +134,7 @@ function uploadCSV() {
                     if (!response.error) {
 
                         Swal.fire("Éxito", "Los datos se guardaron correctamente.", "success");
+                        $('#table').bootstrapTable('refresh');
                         //window.location.reload();
                     } else {
                         Swal.fire("Error",
